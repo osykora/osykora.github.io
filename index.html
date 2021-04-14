@@ -59,14 +59,6 @@ function testSpeech() {
   recognition.start();
 
   recognition.onresult = function(event) {
-    // The SpeechRecognitionEvent results property returns a SpeechRecognitionResultList object
-    // The SpeechRecognitionResultList object contains SpeechRecognitionResult objects.
-    // It has a getter so it can be accessed like an array
-    // The first [0] returns the SpeechRecognitionResult at position 0.
-    // Each SpeechRecognitionResult object contains SpeechRecognitionAlternative objects that contain individual results.
-    // These also have getters so they can be accessed like arrays.
-    // The second [0] returns the SpeechRecognitionAlternative at position 0.
-    // We then return the transcript property of the SpeechRecognitionAlternative object
     var speechResult = event.results[0][0].transcript.toLowerCase();
     if(speechResult === phrase) {
       window.location.href = "https://www.rohlik.cz/chef/22-pecena-kachna-se-zelim";
@@ -82,7 +74,36 @@ function testSpeech() {
   }
 }
 
-testBtn.addEventListener('click', testSpeech);
+function buy() {
+
+  var phrase = "nakup věci na svíčkovou";
+
+  var grammar = '#JSGF V1.0; grammar phrase; public <phrase> = ' + phrase +';';
+  var recognition = new SpeechRecognition();
+  var speechRecognitionList = new SpeechGrammarList();
+  speechRecognitionList.addFromString(grammar, 1);
+  recognition.grammars = speechRecognitionList;
+  recognition.lang = 'cs-CZ';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.start();
+
+  recognition.onresult = function(event) {
+    var speechResult = event.results[0][0].transcript.toLowerCase();
+    if(speechResult === phrase) {
+      window.location.href = "https://www.rohlik.cz/batch-add?1354475=1&1353937=1&1316369=1&1350675=1&1298821=1&1351135=2&1346979=1&1354119=1&1309487=1&1327391=1&1333407=1&724961=1&1371123=1&1299773=1&1350159=1&1323147=1&1309409=1&1313113=1&1313211=1&727399=1&1327797=1";
+    } else {
+      alert('Promin, tohle koupit jeste neumim, ale snad se to brzo naucim :)');
+    }
+
+    console.log('Confidence: ' + event.results[0][0].confidence);
+  }
+
+  recognition.onspeechend = function() {
+    recognition.stop();
+  }
+}
 </script>
 </head>
 <body>
@@ -95,6 +116,10 @@ testBtn.addEventListener('click', testSpeech);
     <div class="speech">
         <input type="text" id="search-phrase" placeholder="Zeptej se 'co si mám dát k obědu'"/>
         <img onclick="testSpeech()" src="https://i.imgur.com/hr20uu8.png"/>
+    </div>
+    <div class="speech">
+        <input type="text" id="search-buy" placeholder="Přikaž 'nakup věci na svíčkovou'"/>
+        <img onclick="buy()" src="https://i.imgur.com/hr20uu8.png"/>
     </div>
 </form>
 </body>
