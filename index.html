@@ -29,13 +29,73 @@ stop();
 }
 }
 }
+
+var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition;
+var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList;
+var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent;
+
+var phrases = [
+  'Co si mám dát k obědu',
+];
+
+var phrasePara = document.querySelector('.phrase');
+var resultPara = document.querySelector('.result');
+var diagnosticPara = document.querySelector('.output');
+
+function testSpeech() {
+
+  var phrase = phrases[0];
+  phrase = phrase.toLowerCase();
+
+  var grammar = '#JSGF V1.0; grammar phrase; public <phrase> = ' + phrase +';';
+  var recognition = new SpeechRecognition();
+  var speechRecognitionList = new SpeechGrammarList();
+  speechRecognitionList.addFromString(grammar, 1);
+  recognition.grammars = speechRecognitionList;
+  recognition.lang = 'cs-CZ';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.start();
+
+  recognition.onresult = function(event) {
+    // The SpeechRecognitionEvent results property returns a SpeechRecognitionResultList object
+    // The SpeechRecognitionResultList object contains SpeechRecognitionResult objects.
+    // It has a getter so it can be accessed like an array
+    // The first [0] returns the SpeechRecognitionResult at position 0.
+    // Each SpeechRecognitionResult object contains SpeechRecognitionAlternative objects that contain individual results.
+    // These also have getters so they can be accessed like arrays.
+    // The second [0] returns the SpeechRecognitionAlternative at position 0.
+    // We then return the transcript property of the SpeechRecognitionAlternative object
+    var speechResult = event.results[0][0].transcript.toLowerCase();
+    if(speechResult === phrase) {
+      window.location.href = "https://www.rohlik.cz/chef/22-pecena-kachna-se-zelim";
+    } else {
+      alert('Promin, tohle jeste neznam, ale naucim se :)');
+    }
+
+    console.log('Confidence: ' + event.results[0][0].confidence);
+  }
+
+  recognition.onspeechend = function() {
+    recognition.stop();
+  }
+}
+
+testBtn.addEventListener('click', testSpeech);
 </script>
 </head>
 <body>
 <!– Search Form –>
+<form>
     <div class="speech">
         <input type="text" id="search" placeholder="Po kliku na mikrofon rekni 'svíčková na smetaně'"/>
         <img onclick="startDictation()" src="https://i.imgur.com/hr20uu8.png"/>
     </div>
+    <div class="speech">
+        <input type="text" id="search-phrase" placeholder="Zeptej se 'co si mám dát k obědu'"/>
+        <img onclick="testSpeech()" src="https://i.imgur.com/hr20uu8.png"/>
+    </div>
+</form>
 </body>
 </html>
