@@ -78,6 +78,7 @@ function testSpeech() {
 function buy() {
 
   var phrase = "buy the first";
+  var phraseAlt = "by the first";
 
   var grammar = '#JSGF V1.0; grammar phrase; public <phrase> = ' + phrase +';';
   var recognition = new SpeechRecognition();
@@ -92,16 +93,25 @@ function buy() {
 
   recognition.onresult = function(event) {
     var speechResult = event.results[0][0].transcript.toLowerCase();
+    var product;
+    var foundPhrase;
+    
     if(speechResult.startsWith(phrase)) {
-        var product = speechResult.replace(phrase, "").trim().toLowerCase();
-        var searchUrl = "https://www.rohlik.cz/services/frontend-service/search-metadata?search=" + product + "&companyId=1&limit=1";
-        $.getJSON(searchUrl, function(data){
-            var productId = data.data.productList[0].productId;
-            window.location.href = "https://www.rohlik.cz/batch-add?" + productId + "=1";
-    });
+        foundPhrase = phrase;
+    } else if (speechResult.startsWith(phraseAlt)) {
+        foundPhrase = phraseAlt;
     } else {
-      alert("Sorry, I couldn't understand... Could you speak a bit slower, please? :)");
+      alert("Sorry, I understood '" + speechResult + "'. Could you please repeat it? :)");
+      
+      return;
     }
+     
+    var product = speechResult.replace(foundPhrase, "").trim().toLowerCase();
+    var searchUrl = "https://www.rohlik.cz/services/frontend-service/search-metadata?search=" + product + "&companyId=1&limit=1";
+    $.getJSON(searchUrl, function(data){
+        var productId = data.data.productList[0].productId;
+        window.location.href = "https://www.rohlik.cz/batch-add?" + productId + "=1";
+});
 
     console.log('Confidence: ' + event.results[0][0].confidence);
   }
