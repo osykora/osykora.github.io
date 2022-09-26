@@ -22,7 +22,7 @@ recognition.start();
 recognition.onresult = function(e) {
     document.getElementById("search").value = e.results[0][0].transcript;
     recognition.stop();
-    window.location.href = "https://www.rohlik.cz/hledat/" + e.results[0][0].transcript + "?companyId=1";
+    window.location.href = "https://www.rohlik.cz/hledat/q=" + e.results[0][0].transcript + "?companyId=1";
 };
 recognition.onerror = function(e) {
 stop();
